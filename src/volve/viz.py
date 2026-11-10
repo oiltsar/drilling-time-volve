@@ -1,19 +1,21 @@
 """Единый стиль графиков."""
 import matplotlib.pyplot as plt
 
-INK, GREY, LIGHT = "#1b1f24", "#8a9099", "#d9dde2"
-ACCENT, WARN, CALM = "#c8452c", "#e0a030", "#2f6f9f"
-CLASS_COLORS = {"productive": CALM, "npt": ACCENT, "weather": WARN}
-GROUP_COLORS = {"оборудование станка и подрядчиков": CALM, "осложнения в скважине": ACCENT, "забастовка": WARN,
-                "ожидание и согласования": GREY, "не классифицировано": LIGHT}
+# Серый — основной цвет, один акцент на главную мысль
+INK, GREY, LIGHT = "#151917", "#9aa09c", "#e1e4df"
+ACCENT, WARN, CALM = "#e8590c", "#4f5753", "#b9beba"
+BG = "#fcfcfb"
+CLASS_COLORS = {"productive": GREY, "npt": ACCENT, "weather": WARN}
+GROUP_COLORS = {"оборудование станка и подрядчиков": CALM, "осложнения в скважине": WARN, "забастовка": ACCENT,
+                "ожидание и согласования": LIGHT, "не классифицировано": LIGHT}
 
 
 def setup():
     plt.rcParams.update({
-        "figure.dpi": 110, "savefig.dpi": 160, "savefig.bbox": "tight", "font.family": "DejaVu Sans",
+        "figure.facecolor": BG, "axes.facecolor": BG, "savefig.facecolor": BG, "figure.dpi": 110, "savefig.dpi": 160, "savefig.bbox": "tight", "font.family": "DejaVu Sans",
         "font.size": 10, "axes.titlesize": 12, "axes.titleweight": "bold", "axes.titlelocation": "left",
         "axes.spines.top": False, "axes.spines.right": False, "axes.edgecolor": GREY, "axes.labelcolor": INK,
-        "xtick.color": INK, "ytick.color": INK, "axes.grid": True, "grid.color": LIGHT, "grid.linewidth": 0.6,
+        "xtick.color": INK, "ytick.color": INK, "axes.grid": False, "axes.spines.left": False, "xtick.major.size": 0, "ytick.major.size": 0,
         "axes.axisbelow": True, "legend.frameon": False,
     })
 
