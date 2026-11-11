@@ -2,9 +2,10 @@
 
 -- Операции с классификацией времени.
 --   productive — работа по программе;
---   npt        — непроизводительное время: операция из группы interruption (кроме погоды)
---                или операция, помеченная в рапорте как неуспешная (state = fail);
---   weather    — ожидание погоды (на шельфе считается отдельно: от подрядчика не зависит).
+--   npt        — НПВ: операция из группы interruption (кроме погоды), операция с отметкой
+--                state = fail или с отметкой stateDetailActivity, отличной от success
+--                (отказ оборудования, операция не выполнена, поглощение, прихват, травма);
+--   weather    — простой по метеоусловиям (на шельфе учитывается отдельно).
 CREATE OR REPLACE VIEW ops_clean AS
 SELECT
     o.*,
@@ -12,7 +13,7 @@ SELECT
     r.rig,
     CASE
         WHEN o.activity_group = 'interruption' AND o.activity = 'waiting on weather' THEN 'weather'
-        WHEN o.activity_group = 'interruption' OR o.state = 'fail' THEN 'npt'
+        WHEN o.activity_group = 'interruption' OR o.state = 'fail' OR o.state_detail <> 'success' THEN 'npt'
         ELSE 'productive'
     END AS time_class
 FROM operations o
@@ -28,7 +29,7 @@ SELECT
     max(day_end)                                AS last_report,
     count(*)                                    AS reports,
     max(md)                                     AS max_md,
-    CASE WHEN min(day_start) < DATE '2000-01-01' THEN 'разведка 1992–1998' ELSE 'разработка 2007–2016' END AS era
+    CASE WHEN min(day_start) < DATE '2000-01-01' THEN 'разведочное бурение' ELSE 'эксплуатационное бурение' END AS scope
 FROM reports
 GROUP BY wellbore;
 
@@ -43,14 +44,3 @@ SELECT
     sum(hours) FILTER (WHERE time_class = 'npt') / sum(hours) AS npt_share
 FROM ops_clean
 GROUP BY wellbore;
-
--- Причины непроизводительного времени.
-CREATE OR REPLACE VIEW npt_causes AS
-SELECT
-    CASE WHEN activity_group = 'interruption' THEN activity ELSE 'сбой в плановой операции' END AS cause,
-    state_detail,
-    count(*)    AS operations,
-    sum(hours)  AS hours
-FROM ops_clean
-WHERE time_class = 'npt'
-GROUP BY ALL;
